@@ -9,7 +9,23 @@
     "core:default",
     "sql:default",
     "sql:allow-execute",
+    "dialog:default",
     "fs:default",
-    "dialog:default"
+    {
+      "identifier": "fs:allow-read",
+      "allow": ["**"]
+    },
+    {
+      "identifier": "fs:allow-write",
+      "allow": ["**"]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": ["**"]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": ["**"]
+    }
   ]
 }

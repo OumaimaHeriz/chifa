@@ -11,13 +11,16 @@ export const CardProvider = ({ children }) => {
   // Initialize Database
   useEffect(() => {
     const initDb = async () => {
-      try {
-        const database = await Database.load('sqlite:chifa.db');
-        
-        // Temporary: drop the old cards table to migrate to the new complex schema
-        // Note: In production, we would use proper migrations.
-        // await database.execute('DROP TABLE IF EXISTS cards');
+      const storagePath = localStorage.getItem('chifa_storage_path');
+      if (!storagePath) {
+        setIsDbReady(true);
+        return;
+      }
 
+      try {
+        const dbPath = `sqlite:${storagePath}/chifa.db`;
+        const database = await Database.load(dbPath);
+        
         await database.execute(`
           CREATE TABLE IF NOT EXISTS cards_v2 (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

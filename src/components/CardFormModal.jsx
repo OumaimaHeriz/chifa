@@ -32,11 +32,19 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
 
   const saveImageLocally = async (uint8Array, extension = 'png') => {
     try {
-      // Ensure the images directory exists in AppData
-      await mkdir('ordonnances', { baseDir: BaseDirectory.AppData, recursive: true });
+      const storagePath = localStorage.getItem('chifa_storage_path');
+      if (!storagePath) {
+        console.error("Storage path not configured.");
+        return null;
+      }
+      const ordonnancesDir = `${storagePath}/ordonnances`;
+      await mkdir(ordonnancesDir, { recursive: true });
       
       const fileName = `ordonnances/ord_${Date.now()}.${extension}`;
-      await writeFile(fileName, uint8Array, { baseDir: BaseDirectory.AppData });
+      const absolutePath = `${storagePath}/${fileName}`;
+      await writeFile(absolutePath, uint8Array);
+      
+      // We save the RELATIVE path in the DB so other computers on the LAN can resolve it using their own storagePath
       return fileName;
     } catch (err) {
       console.error("Error saving image:", err);

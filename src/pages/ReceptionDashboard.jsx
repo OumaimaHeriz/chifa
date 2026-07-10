@@ -10,13 +10,7 @@ export default function ReceptionDashboard() {
   const { t } = useTranslation();
   const { cards } = useCards();
   const [searchQuery, setSearchQuery] = useState('');
-  const [appDataPath, setAppDataPath] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
-
-  useEffect(() => {
-    // Get the base app data directory so we can resolve image paths
-    appDataDir().then(dir => setAppDataPath(dir)).catch(console.error);
-  }, []);
 
   const filteredCards = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -31,15 +25,15 @@ export default function ReceptionDashboard() {
 
   const getImageUrl = (path) => {
     if (!path) return null;
-    // If it's already an absolute path or blob
-    if (path.startsWith('blob:') || path.startsWith('http') || path.startsWith('/')) {
+    if (path.startsWith('blob:') || path.startsWith('http')) {
       return convertFileSrc(path);
     }
-    // If it's relative to AppData (like "ordonnances/ord_123.png")
-    if (appDataPath) {
-      // Create the absolute path (naive join for this example)
-      const separator = navigator.userAgent.includes('Win') ? '\\' : '/';
-      const absolutePath = `${appDataPath}${separator}${path}`;
+    const storagePath = localStorage.getItem('chifa_storage_path');
+    if (storagePath) {
+      // Create the absolute path using the user's storage path
+      const separator = storagePath.includes('\\') ? '\\' : '/';
+      const cleanPath = path.replace(/^[/\\]+/, ''); // remove leading slash if any
+      const absolutePath = `${storagePath}${separator}${cleanPath}`;
       return convertFileSrc(absolutePath);
     }
     return null;

@@ -11,9 +11,13 @@ import './index.css';
 import { CardProvider } from './contexts/CardContext';
 import { useLicenseCheck } from './hooks/useLicenseCheck';
 import { ShieldAlert } from 'lucide-react';
+import Setup from './pages/Setup';
 
 // Root redirect logic
 const RootRedirect = () => {
+  const storagePath = localStorage.getItem('chifa_storage_path');
+  if (!storagePath) return <Navigate to="/setup" replace />;
+
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'Administrateur') return <Navigate to="/admin" replace />;
@@ -67,6 +71,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<RootRedirect />} />
+            <Route path="/setup" element={<Setup />} />
             <Route path="/login" element={<Login />} />
             
             <Route 

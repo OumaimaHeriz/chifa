@@ -10,8 +10,19 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initDb = async () => {
+      const storagePath = localStorage.getItem('chifa_storage_path');
+      if (!storagePath) {
+        setIsDbReady(true); // Let the app render so it can route to /setup
+        return;
+      }
+
       try {
-        const database = await Database.load('sqlite:chifa.db');
+        // Construct the absolute connection string for Tauri plugin sql
+        // On Windows it will be sqlite:C:\Path\To\chifa.db
+        // On Mac it will be sqlite:/Path/To/chifa.db
+        // It requires a proper format. Let's use string concatenation.
+        const dbPath = `sqlite:${storagePath}/chifa.db`;
+        const database = await Database.load(dbPath);
         
         await database.execute(`
           CREATE TABLE IF NOT EXISTS users (
