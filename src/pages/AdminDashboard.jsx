@@ -142,10 +142,10 @@ export default function AdminDashboard() {
                   <td style={{ padding: '1rem' }}>
                     <span style={{ 
                       padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '500',
-                      backgroundColor: card.status === 'En attente' ? '#fef08a' : (card.status === 'Terminé' ? '#bbf7d0' : '#e5e7eb'),
-                      color: card.status === 'En attente' ? '#854d0e' : (card.status === 'Terminé' ? '#166534' : '#374151')
+                      backgroundColor: card.status === 'موجودة' ? '#fef08a' : (card.status === 'أخذها' ? '#bbf7d0' : '#e5e7eb'),
+                      color: card.status === 'موجودة' ? '#854d0e' : (card.status === 'أخذها' ? '#166534' : '#374151')
                     }}>
-                      {card.status}
+                      {card.status || 'موجودة'}
                     </span>
                   </td>
                   <td style={{ padding: '1rem', color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>{card.dateAdded}</td>

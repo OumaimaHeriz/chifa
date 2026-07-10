@@ -12,7 +12,7 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
     ayant_droit: '', taux_remboursement: '', maladie_chronique: false,
     tier_payant: '', fin_droit: '', date_servie: '', client_type: 'Normal',
     remarque: '', tarif: '', vignette_remboursement: '', vignette_instance: '',
-    ordonnance_image_path: '', status: 'En attente'
+    ordonnance_image_path: '', status: 'موجودة'
   };
 
   const [formData, setFormData] = useState(initialData || defaultState);
@@ -262,6 +262,14 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
               <div>
                 <label className="text-sm font-medium mb-1 block">Remarque</label>
                 <textarea name="remarque" value={formData.remarque} onChange={handleChange} className="input-field" style={{ minHeight: '80px', resize: 'vertical' }}></textarea>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--color-primary-dark)' }}>Statut du dossier (حالة الملف)</label>
+                <select name="status" value={formData.status} onChange={handleChange} className="input-field" style={{ fontWeight: 'bold', backgroundColor: formData.status === 'أخذها' ? '#bbf7d0' : '#fef08a' }}>
+                  <option value="موجودة">موجودة (En attente)</option>
+                  <option value="أخذها">أخذها (Livré)</option>
+                </select>
               </div>
 
             </div>
