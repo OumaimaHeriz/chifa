@@ -164,6 +164,23 @@ export default function UserManagement() {
             </tbody>
           </table>
         </div>
+
+        {/* License Key Section */}
+        <div className="card mt-8" style={{ borderLeft: '4px solid var(--color-primary)' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem', color: 'var(--color-primary-dark)' }}>
+            معلومات الترخيص (License Information)
+          </h2>
+          <p className="text-gray-600 mb-4">
+            هذا هو الرقم التعريفي الخاص بهذا الحاسوب. يمكنك استخدامه لإيقاف البرنامج عن بُعد في حال انتهاء فترة التجربة.
+          </p>
+          <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
+            <code className="font-mono text-lg text-gray-900 font-bold" style={{ userSelect: 'all' }}>
+              {localStorage.getItem('chifa_machine_id') || 'جاري التوليد...'}
+            </code>
+            <span className="text-sm text-gray-500">انسخ هذا الرقم واحتفظ به</span>
+          </div>
+        </div>
+
       </div>
 
       {isModalOpen && (
