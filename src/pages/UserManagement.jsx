@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Edit2, Trash2, Shield, UserX, UserCheck } from 'lucide-react';
+import { Plus, Edit2, Trash2, Shield, UserX, UserCheck, Eye, EyeOff } from 'lucide-react';
 
 export default function UserManagement() {
   const { t } = useTranslation();
@@ -10,6 +10,7 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ username: '', password: '', role: 'Réception', is_active: true });
 
   useEffect(() => {
@@ -196,7 +197,23 @@ export default function UserManagement() {
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500' }}>Mot de passe</label>
-                <input type="text" className="input-field" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} required />
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    className="input-field" 
+                    style={{ paddingInlineEnd: '2.5rem' }}
+                    value={formData.password} 
+                    onChange={(e) => setFormData({...formData, password: e.target.value})} 
+                    required 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: '0.75rem', color: 'var(--color-text-muted)' }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500' }}>Rôle</label>
