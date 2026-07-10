@@ -21,24 +21,41 @@ const RootRedirect = () => {
 };
 
 function App() {
-  const { isLicensed, isChecking } = useLicenseCheck();
+  const { isLicensed, isChecking, machineId } = useLicenseCheck();
 
   if (isChecking) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <p>Vérification de la licence... / Checking license...</p>
+      <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
       </div>
     );
   }
 
   if (!isLicensed) {
     return (
-      <div className="flex h-screen items-center justify-center" style={{ backgroundColor: 'var(--color-error)' }}>
-        <div className="card text-center flex flex-col items-center gap-4" style={{ maxWidth: '400px', backgroundColor: 'var(--color-surface)' }}>
-          <ShieldAlert size={48} color="var(--color-error)" />
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Accès Bloqué</h1>
-          <p>Votre licence a expiré ou a été révoquée. Veuillez contacter l'administrateur.</p>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>Your license has expired or was revoked.</p>
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-red-50 p-6 text-center">
+        <div className="bg-white p-8 rounded-xl shadow-xl max-w-md w-full border-t-4 border-red-500">
+          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <span className="text-red-500 text-3xl">⚠️</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Période d'essai expirée</h1>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">(انتهت الفترة التجريبية)</h2>
+          <p className="text-gray-600 mb-6">
+            Votre licence pour utiliser cette application a expiré ou a été désactivée. Veuillez contacter l'administrateur pour renouveler votre abonnement.
+            <br/><br/>
+            لقد انتهت صلاحية استخدامك للبرنامج. يرجى التواصل مع المبرمج لتفعيل النسخة الخاصة بك.
+          </p>
+          
+          <div className="bg-gray-100 p-4 rounded-lg mb-6">
+            <p className="text-sm text-gray-500 font-bold mb-1">رقم الترخيص الخاص بك (License Key):</p>
+            <p className="font-mono text-lg text-gray-900 tracking-wider font-bold select-all">{machineId}</p>
+          </div>
+
+          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <p className="text-sm font-bold text-green-800 mb-1">للتواصل والتفعيل:</p>
+            <p className="text-green-700 font-bold" dir="ltr">+213 XX XX XX XX</p>
+            <p className="text-green-700 font-bold">Email@example.com</p>
+          </div>
         </div>
       </div>
     );
