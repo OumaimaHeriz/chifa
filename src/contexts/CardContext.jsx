@@ -19,7 +19,7 @@ export const CardProvider = ({ children }) => {
         // await database.execute('DROP TABLE IF EXISTS cards');
 
         await database.execute(`
-          CREATE TABLE IF NOT EXISTS cards (
+          CREATE TABLE IF NOT EXISTS cards_v2 (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             numero_assurance TEXT NOT NULL,
             nom TEXT NOT NULL,
@@ -57,7 +57,7 @@ export const CardProvider = ({ children }) => {
   const loadCards = async (database = db) => {
     if (!database) return;
     try {
-      const result = await database.select('SELECT * FROM cards ORDER BY id DESC');
+      const result = await database.select('SELECT * FROM cards_v2 ORDER BY id DESC');
       const mappedCards = result.map(card => ({
         ...card,
         maladie_chronique: Boolean(card.maladie_chronique)
@@ -73,7 +73,7 @@ export const CardProvider = ({ children }) => {
     try {
       const dateAdded = new Date().toISOString().split('T')[0];
       await db.execute(
-        `INSERT INTO cards (
+        `INSERT INTO cards_v2 (
           numero_assurance, nom, prenom, date_naissance, ayant_droit,
           taux_remboursement, maladie_chronique, tier_payant, fin_droit,
           date_servie, client_type, remarque, tarif, vignette_remboursement,
@@ -111,7 +111,7 @@ export const CardProvider = ({ children }) => {
     if (!db) return;
     try {
       await db.execute(
-        `UPDATE cards SET 
+        `UPDATE cards_v2 SET 
           numero_assurance = $1, nom = $2, prenom = $3, date_naissance = $4,
           ayant_droit = $5, taux_remboursement = $6, maladie_chronique = $7,
           tier_payant = $8, fin_droit = $9, date_servie = $10, client_type = $11,
@@ -149,7 +149,7 @@ export const CardProvider = ({ children }) => {
   const deleteCard = async (id) => {
     if (!db) return;
     try {
-      await db.execute('DELETE FROM cards WHERE id = $1', [id]);
+      await db.execute('DELETE FROM cards_v2 WHERE id = $1', [id]);
       await loadCards();
     } catch (error) {
       console.error("Failed to delete card:", error);
