@@ -1,21 +1,57 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import Database from '@tauri-apps/plugin-sql';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [db, setDb] = useState(null);
+  const [isDbReady, setIsDbReady] = useState(false);
 
-  const login = (username, password) => {
-    // Mock authentication for Phase 1 & 2
+  useEffect(() => {
+    const initDb = async () => {
+      try {
+        const database = await Database.load('sqlite:chifa.db');
+        
+        await database.execute(`
+          CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT NOT NULL,
+            is_active BOOLEAN DEFAULT 1
+          )
+        `);
+
+        // Check if admin exists
+        const result = await database.select("SELECT * FROM users WHERE username = 'admin'");
+        if (result.length === 0) {
+          await database.execute(
+            "INSERT INTO users (username, password, role, is_active) VALUES ('admin', 'admin', 'Administrateur', 1)"
+          );
+        }
+
+        setDb(database);
+        setIsDbReady(true);
+      } catch (error) {
+        console.error("Auth DB Init Error:", error);
+      }
+    };
+    initDb();
+  }, []);
+
+  const login = async (username, password) => {
+    if (!db) return null;
     const lowerUsername = username.toLowerCase().trim();
-    if (lowerUsername === 'admin' && password === 'admin') {
-      const adminUser = { username: 'admin', role: 'Administrateur' };
-      setUser(adminUser);
-      return adminUser;
-    } else if (lowerUsername === 'reception' && password === 'reception') {
-      const receptionUser = { username: 'reception', role: 'Réception' };
-      setUser(receptionUser);
-      return receptionUser;
+    const result = await db.select(
+      "SELECT * FROM users WHERE username = $1 AND password = $2 AND is_active = 1",
+      [lowerUsername, password]
+    );
+
+    if (result.length > 0) {
+      const loggedUser = result[0];
+      setUser(loggedUser);
+      return loggedUser;
     }
     return null;
   };
@@ -24,8 +60,16 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  if (!isDbReady) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <p>Loading Authentication...</p>
+      </div>
+    );
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, db, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

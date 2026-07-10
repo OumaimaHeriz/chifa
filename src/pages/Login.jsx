@@ -13,11 +13,11 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
-    const user = login(username, password);
+    const user = await login(username, password);
     
     if (user) {
       if (user.role === 'Administrateur') {

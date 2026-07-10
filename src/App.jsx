@@ -5,6 +5,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import ReceptionDashboard from './pages/ReceptionDashboard';
+import UserManagement from './pages/UserManagement';
 import './i18n'; // Initialize i18n
 import './index.css';
 import { CardProvider } from './contexts/CardContext';
@@ -55,7 +56,10 @@ function App() {
               path="/admin/*" 
               element={
                 <PrivateRoute allowedRoles={['Administrateur']}>
-                  <AdminDashboard />
+                  <Routes>
+                    <Route path="/" element={<AdminDashboard />} />
+                    <Route path="/users" element={<UserManagement />} />
+                  </Routes>
                 </PrivateRoute>
               } 
             />

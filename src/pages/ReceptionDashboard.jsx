@@ -1,79 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Layout from '../components/Layout';
 import { useCards } from '../contexts/CardContext';
-import { CheckCircle2, XCircle, Search } from 'lucide-react';
+import { Search, FileText } from 'lucide-react';
 
 export default function ReceptionDashboard() {
   const { t } = useTranslation();
   const { cards } = useCards();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredCards = cards.filter(card => {
-    const fullName = `${card.firstName} ${card.lastName}`.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase());
-  });
+  const filteredCards = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    
+    return cards.filter(card => {
+      const query = searchQuery.toLowerCase();
+      return (card.numero_assurance?.toLowerCase().includes(query) ||
+              card.nom?.toLowerCase().includes(query) ||
+              card.prenom?.toLowerCase().includes(query));
+    });
+  }, [cards, searchQuery]);
 
   return (
-    <Layout>
-      <div style={{ padding: '2rem' }}>
-        <div className="flex justify-between items-center" style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary-dark)' }}>
-            {t('reception_dashboard')}
-          </h1>
-        </div>
-
-        <div className="card" style={{ marginBottom: '2rem' }}>
-          <div className="flex items-center gap-2" style={{ position: 'relative' }}>
-            <Search size={20} style={{ position: 'absolute', left: '1rem', color: 'var(--color-text-muted)' }} />
-            <input 
-              type="text" 
-              className="input-field" 
-              placeholder={t('search_patient')} 
-              style={{ paddingLeft: '3rem' }}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+    <Layout activeTab="search">
+      <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+        
+        <div style={{ textAlign: 'center', marginBottom: '3rem', marginTop: '2rem' }}>
+          <div style={{ display: 'inline-flex', backgroundColor: 'var(--color-primary-light)', padding: '1rem', borderRadius: '50%', color: 'white', marginBottom: '1rem' }}>
+            <Search size={48} />
           </div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', color: 'var(--color-primary-dark)' }}>
+            Recherche de Dossier
+          </h1>
+          <p style={{ color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+            Recherchez un patient par Numéro d'assurance, Nom ou Prénom.
+          </p>
         </div>
 
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'start' }}>
-            <thead style={{ backgroundColor: 'var(--color-background)', borderBottom: '1px solid var(--color-border)' }}>
-              <tr>
-                <th style={{ padding: '1rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('first_name')}</th>
-                <th style={{ padding: '1rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('last_name')}</th>
-                <th style={{ padding: '1rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('chifa_card_status')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCards.map(card => (
-                <tr key={card.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                  <td style={{ padding: '1rem' }}>{card.firstName}</td>
-                  <td style={{ padding: '1rem' }}>{card.lastName}</td>
-                  <td style={{ padding: '1rem' }}>
-                    {card.isAvailable ? (
-                      <span className="flex items-center gap-2" style={{ color: 'var(--color-success)', fontWeight: '500', fontSize: '0.875rem' }}>
-                        <CheckCircle2 size={16} /> {t('available')}
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2" style={{ color: 'var(--color-error)', fontWeight: '500', fontSize: '0.875rem' }}>
-                        <XCircle size={16} /> {t('not_available')}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {filteredCards.length === 0 && (
-                <tr>
-                  <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                    No records found / Aucun enregistrement
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.5rem', marginBottom: '2rem', border: '2px solid var(--color-primary-light)' }}>
+          <Search size={24} color="var(--color-primary)" />
+          <input 
+            type="text" 
+            placeholder="Entrez le numéro d'assurance ou le nom..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ border: 'none', outline: 'none', width: '100%', fontSize: '1.125rem' }}
+            autoFocus
+          />
         </div>
+
+        {searchQuery.trim() !== '' && (
+          <div className="flex flex-col gap-4">
+            {filteredCards.length > 0 ? (
+              filteredCards.map(card => (
+                <div key={card.id} className="card" style={{ borderLeft: '4px solid var(--color-primary)' }}>
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--color-primary-dark)' }}>
+                        {card.nom} {card.prenom}
+                      </h3>
+                      <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
+                        N° Assurance: {card.numero_assurance}
+                      </p>
+                    </div>
+                    <span style={{ 
+                      padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '500',
+                      backgroundColor: card.client_type === 'VIP' ? '#fef3c7' : '#f3f4f6',
+                      color: card.client_type === 'VIP' ? '#b45309' : '#4b5563'
+                    }}>
+                      Client {card.client_type}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4" style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '0.5rem' }}>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>Vignette Instance</p>
+                      <p style={{ fontWeight: '500' }}>{card.vignette_instance || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>Vignette N° Remboursement</p>
+                      <p style={{ fontWeight: '500' }}>{card.vignette_remboursement || 'N/A'}</p>
+                    </div>
+                    <div style={{ gridColumn: 'span 2' }}>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>Remarque (Admin)</p>
+                      <p style={{ fontWeight: '500', color: '#b91c1c' }}>{card.remarque || 'Aucune remarque.'}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="card text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+                <FileText size={48} style={{ margin: '0 auto', opacity: 0.5, marginBottom: '1rem' }} />
+                <p>Aucun dossier trouvé pour "{searchQuery}"</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </Layout>
   );

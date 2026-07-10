@@ -2,10 +2,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { LogOut, Users, CreditCard, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Layout({ children }) {
+export default function Layout({ children, activeTab = 'cards' }) {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'fr' ? 'ar' : 'fr';
@@ -31,11 +33,17 @@ export default function Layout({ children }) {
         <nav style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {user?.role === 'Administrateur' && (
             <>
-              <button className="flex items-center gap-2" style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-primary-light)', color: 'white', fontWeight: '500', width: '100%', textAlign: 'start' }}>
+              <button 
+                onClick={() => navigate('/admin')}
+                className="flex items-center gap-2" 
+                style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', backgroundColor: activeTab === 'cards' ? 'var(--color-primary-light)' : 'transparent', color: activeTab === 'cards' ? 'white' : 'var(--color-text-muted)', fontWeight: '500', width: '100%', textAlign: 'start' }}>
                 <CreditCard size={20} />
                 Gestion des Cartes
               </button>
-              <button className="flex items-center gap-2" style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', color: 'var(--color-text-muted)', fontWeight: '500', width: '100%', textAlign: 'start' }}>
+              <button 
+                onClick={() => navigate('/admin/users')}
+                className="flex items-center gap-2" 
+                style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', backgroundColor: activeTab === 'users' ? 'var(--color-primary-light)' : 'transparent', color: activeTab === 'users' ? 'white' : 'var(--color-text-muted)', fontWeight: '500', width: '100%', textAlign: 'start' }}>
                 <Users size={20} />
                 Utilisateurs
               </button>
