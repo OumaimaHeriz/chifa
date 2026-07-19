@@ -28,6 +28,12 @@ export const useLicenseCheck = () => {
       const id = getOrCreateMachineId();
       setMachineId(id);
 
+      // --- BYPASS FOR DEVELOPMENT ---
+      setIsLicensed(true);
+      setIsChecking(false);
+      return;
+      // ------------------------------
+
       try {
         // محاولة الاتصال بالإنترنت لجلب حالة الرخصة
         const response = await fetch(LICENSE_URL, { cache: 'no-store' });

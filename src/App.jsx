@@ -37,28 +37,28 @@ function App() {
 
   if (!isLicensed) {
     return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center bg-red-50 p-6 text-center">
-        <div className="bg-white p-8 rounded-xl shadow-xl max-w-md w-full border-t-4 border-red-500">
-          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <span className="text-red-500 text-3xl">⚠️</span>
+      <div className="flex flex-col items-center justify-center h-screen w-full" style={{ backgroundColor: '#fef2f2', padding: '1.5rem', textAlign: 'center' }}>
+        <div className="card" style={{ maxWidth: '28rem', width: '100%', borderTop: '4px solid #ef4444', backgroundColor: '#ffffff', padding: '2rem', borderRadius: '0.75rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
+          <div className="flex items-center justify-center mx-auto" style={{ width: '4rem', height: '4rem', backgroundColor: '#fee2e2', borderRadius: '9999px', marginBottom: '1rem' }}>
+            <span style={{ color: '#ef4444', fontSize: '1.875rem' }}>⚠️</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Période d'essai expirée</h1>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">(انتهت الفترة التجريبية)</h2>
-          <p className="text-gray-600 mb-6">
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', marginBottom: '0.5rem' }}>Période d'essai expirée</h1>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#111827', marginBottom: '1rem' }}>(انتهت الفترة التجريبية)</h2>
+          <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>
             Votre licence pour utiliser cette application a expiré ou a été désactivée. Veuillez contacter l'administrateur pour renouveler votre abonnement.
             <br/><br/>
             لقد انتهت صلاحية استخدامك للبرنامج. يرجى التواصل مع المبرمج لتفعيل النسخة الخاصة بك.
           </p>
           
-          <div className="bg-gray-100 p-4 rounded-lg mb-6">
-            <p className="text-sm text-gray-500 font-bold mb-1">رقم الترخيص الخاص بك (License Key):</p>
-            <p className="font-mono text-lg text-gray-900 tracking-wider font-bold select-all">{machineId}</p>
+          <div style={{ backgroundColor: '#f3f4f6', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 'bold', marginBottom: '0.25rem' }}>رقم الترخيص الخاص بك (License Key):</p>
+            <p style={{ fontFamily: 'monospace', fontSize: '1.125rem', color: '#111827', letterSpacing: '0.05em', fontWeight: 'bold', userSelect: 'all' }}>{machineId}</p>
           </div>
 
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <p className="text-sm font-bold text-green-800 mb-1">للتواصل والتفعيل:</p>
-            <p className="text-green-700 font-bold" dir="ltr">+213 XX XX XX XX</p>
-            <p className="text-green-700 font-bold">Email@example.com</p>
+          <div style={{ backgroundColor: '#f0fdf4', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #bbf7d0' }}>
+            <p style={{ fontSize: '0.875rem', fontWeight: 'bold', color: '#166534', marginBottom: '0.25rem' }}>للتواصل والتفعيل:</p>
+            <p style={{ color: '#15803d', fontWeight: 'bold' }} dir="ltr">+213 XX XX XX XX</p>
+            <p style={{ color: '#15803d', fontWeight: 'bold' }}>Email@example.com</p>
           </div>
         </div>
       </div>

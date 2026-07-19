@@ -45,72 +45,83 @@ export default function Setup() {
   };
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-gray-50" style={{ backgroundColor: 'var(--color-background)' }}>
-      <div className="absolute top-4 right-4 rtl:left-4 rtl:right-auto">
-        <button onClick={toggleLanguage} className="btn btn-primary" style={{ backgroundColor: 'white', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
+    <div className="flex flex-col items-center justify-center h-screen w-full" style={{ backgroundColor: 'var(--color-background)' }}>
+      <div style={{ position: 'absolute', top: '1rem', right: '1rem' }} className="rtl:left-4 rtl:right-auto">
+        <button onClick={toggleLanguage} className="btn" style={{ backgroundColor: '#ffffff', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', padding: '0.5rem 1rem', borderRadius: '0.5rem', fontWeight: 'bold' }}>
           {i18n.language === 'fr' ? 'العربية' : 'Français'}
         </button>
       </div>
 
-      <div className="card w-full shadow-2xl border-t-4 border-blue-500" style={{ maxWidth: '600px', backgroundColor: 'var(--color-surface)' }}>
-        <div className="flex flex-col items-center gap-4 mb-6">
-          <div className="bg-blue-100 p-4 rounded-full text-blue-600">
-            <Database size={48} />
+      <div className="card" style={{ maxWidth: '36rem', width: '100%', borderTop: '4px solid #3b82f6', backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '0.75rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+        <div className="flex flex-col items-center justify-center" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="flex items-center justify-center" style={{ width: '4rem', height: '4rem', backgroundColor: '#dbeafe', color: '#2563eb', borderRadius: '9999px' }}>
+            <Database size={32} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 text-center">
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', textAlign: 'center', lineHeight: '1.4' }}>
             Configuration de la Base de Données<br/>
             (إعداد قاعدة البيانات)
           </h1>
-          <p className="text-gray-600 text-center mb-4">
+          <p style={{ color: '#4b5563', textAlign: 'center', marginBottom: '1rem' }}>
             Pour utiliser le logiciel sur plusieurs ordinateurs (Réseau Local), veuillez sélectionner un dossier partagé.
             <br/>
             لكي تستخدم البرنامج في حاسوبين (عبر الشبكة)، يرجى اختيار المجلد المشترك الذي سيحفظ فيه البيانات.
           </p>
         </div>
 
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-          <div className="flex items-start">
-            <ShieldAlert className="text-yellow-600 mt-1 mr-3 rtl:ml-3" size={24} />
+        <div style={{ backgroundColor: '#fefce8', borderLeft: '4px solid #facc15', padding: '1rem', marginBottom: '1.5rem', borderRadius: '0.25rem' }}>
+          <div className="flex items-start" style={{ gap: '0.75rem' }}>
+            <ShieldAlert style={{ color: '#ca8a04', marginTop: '0.25rem', flexShrink: 0 }} size={24} />
             <div>
-              <p className="font-bold text-yellow-800">Administrateur (المدير):</p>
-              <p className="text-sm text-yellow-700 mb-2">Choisissez un dossier sur votre bureau et partagez-le sur le réseau. (اختر مجلداً في حاسوبك وقم بمشاركته في الشبكة).</p>
+              <p style={{ fontWeight: 'bold', color: '#854d0e', marginBottom: '0.25rem' }}>Administrateur (المدير):</p>
+              <p style={{ fontSize: '0.875rem', color: '#a16207', marginBottom: '0.5rem' }}>Choisissez un dossier sur votre bureau et partagez-le sur le réseau. (اختر مجلداً في حاسوبك وقم بمشاركته في الشبكة).</p>
               
-              <p className="font-bold text-yellow-800">Réception (الاستقبال):</p>
-              <p className="text-sm text-yellow-700">Choisissez le dossier partagé par l'administrateur via le réseau. (اختر المجلد الذي شاركه المدير عبر الشبكة).</p>
+              <p style={{ fontWeight: 'bold', color: '#854d0e', marginBottom: '0.25rem', marginTop: '0.5rem' }}>Réception (الاستقبال):</p>
+              <p style={{ fontSize: '0.875rem', color: '#a16207' }}>Choisissez le dossier partagé par l'administrateur via le réseau. (اختر المجلد الذي شاركه المدير عبر الشبكة).</p>
             </div>
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm text-center font-medium">
+          <div style={{ backgroundColor: '#fef2f2', color: '#dc2626', padding: '0.75rem', borderRadius: '0.375rem', marginBottom: '1rem', fontSize: '0.875rem', textAlign: 'center', fontWeight: '500' }}>
             {error}
           </div>
         )}
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col" style={{ gap: '1rem' }}>
           <button 
             onClick={handleSelectFolder}
-            className="w-full flex items-center justify-center gap-2 py-4 px-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-colors"
+            style={{ 
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', 
+              padding: '1rem 1.5rem', border: '2px dashed #d1d5db', borderRadius: '0.75rem', 
+              backgroundColor: selectedPath ? '#eff6ff' : 'transparent', 
+              borderColor: selectedPath ? '#3b82f6' : '#d1d5db',
+              transition: 'all 0.2s', cursor: 'pointer'
+            }}
           >
-            <FolderOpen size={24} className={selectedPath ? "text-blue-500" : "text-gray-400"} />
-            <span className={selectedPath ? "font-bold text-blue-700" : "text-gray-600"}>
+            <FolderOpen size={24} style={{ color: selectedPath ? '#3b82f6' : '#9ca3af' }} />
+            <span style={{ fontWeight: selectedPath ? 'bold' : 'normal', color: selectedPath ? '#1d4ed8' : '#4b5563' }}>
               {selectedPath ? "Dossier sélectionné (تم اختيار المجلد)" : "Choisir le dossier (اختر المجلد)"}
             </span>
           </button>
 
           {selectedPath && (
-            <div className="bg-green-50 p-4 rounded-lg flex items-center justify-between border border-green-200">
-              <code className="text-sm text-green-800 truncate flex-1 font-mono" dir="ltr" style={{ userSelect: 'all' }}>
+            <div style={{ backgroundColor: '#f0fdf4', padding: '1rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #bbf7d0' }}>
+              <code style={{ fontSize: '0.875rem', color: '#166534', flex: 1, fontFamily: 'monospace', wordBreak: 'break-all' }} dir="ltr">
                 {selectedPath}
               </code>
-              <CheckCircle2 className="text-green-600 ml-2 rtl:mr-2" size={20} />
+              <CheckCircle2 style={{ color: '#16a34a', flexShrink: 0, marginLeft: '0.5rem' }} size={20} />
             </div>
           )}
 
           <button 
             onClick={handleSaveAndContinue}
             disabled={!selectedPath}
-            className={`btn btn-primary w-full py-4 text-lg mt-4 ${!selectedPath ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className="btn btn-primary w-full"
+            style={{ 
+              padding: '1rem', fontSize: '1.125rem', marginTop: '1rem',
+              opacity: !selectedPath ? 0.5 : 1, 
+              cursor: !selectedPath ? 'not-allowed' : 'pointer'
+            }}
           >
             Continuer (متابعة)
           </button>
