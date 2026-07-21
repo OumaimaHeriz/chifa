@@ -62,10 +62,24 @@ export default function AdminDashboard() {
           <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary-dark)' }}>
             Tableau de Bord
           </h1>
-          <button className="btn btn-primary" onClick={() => openModal()}>
-            <Plus size={16} style={{ marginInlineEnd: '0.5rem' }} />
-            Nouveau Dossier
-          </button>
+          <div className="flex gap-4">
+            <button 
+              className="btn" 
+              style={{ backgroundColor: '#f3f4f6', color: '#4b5563', border: '1px solid #d1d5db' }}
+              onClick={() => {
+                if (window.confirm("هل تريدين حقاً تغيير مسار قاعدة البيانات؟ سيتم إعادة توجيهك لشاشة الإعداد.")) {
+                  localStorage.removeItem('chifa_storage_path');
+                  window.location.href = '/setup';
+                }
+              }}
+            >
+              تغيير المجلد
+            </button>
+            <button className="btn btn-primary" onClick={() => openModal()}>
+              <Plus size={16} style={{ marginInlineEnd: '0.5rem' }} />
+              Nouveau Dossier
+            </button>
+          </div>
         </div>
 
         <div className="grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
