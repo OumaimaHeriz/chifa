@@ -10,6 +10,9 @@ export const CardProvider = ({ children }) => {
 
   // Initialize Database
   useEffect(() => {
+    let intervalId;
+    let currentDb = null;
+
     const initDb = async () => {
       const storagePath = localStorage.getItem('chifa_storage_path');
       if (!storagePath) {
@@ -20,6 +23,7 @@ export const CardProvider = ({ children }) => {
       try {
         const dbPath = `sqlite:${storagePath}/chifa.db`;
         const database = await Database.load(dbPath);
+        currentDb = database;
         
         await database.execute(`
           CREATE TABLE IF NOT EXISTS cards_v2 (
@@ -49,12 +53,27 @@ export const CardProvider = ({ children }) => {
         setIsDbReady(true);
         
         loadCards(database);
+
+        // --- Real-time Polling for LAN Sync ---
+        // Fetch new data from the database every 3 seconds
+        // This ensures PC 2 sees changes made by PC 1 immediately.
+        intervalId = setInterval(() => {
+          loadCards(currentDb);
+        }, 3000);
+
       } catch (error) {
         console.error("Failed to initialize database:", error);
       }
     };
 
     initDb();
+
+    // Cleanup interval on unmount
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
   }, []);
 
   const loadCards = async (database = db) => {
