@@ -8,6 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [db, setDb] = useState(null);
   const [isDbReady, setIsDbReady] = useState(false);
 
+  const [dbError, setDbError] = useState(null);
+
   useEffect(() => {
     const initDb = async () => {
       const storagePath = localStorage.getItem('chifa_storage_path');
@@ -17,10 +19,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        // Construct the absolute connection string for Tauri plugin sql
-        // On Windows it will be sqlite:C:\Path\To\chifa.db
-        // On Mac it will be sqlite:/Path/To/chifa.db
-        // It requires a proper format. Let's use string concatenation.
         const dbPath = `sqlite:${storagePath}/chifa.db`;
         const database = await Database.load(dbPath);
         
@@ -34,7 +32,6 @@ export const AuthProvider = ({ children }) => {
           )
         `);
 
-        // Check if admin exists
         const result = await database.select("SELECT * FROM users WHERE username = 'admin'");
         if (result.length === 0) {
           await database.execute(
@@ -46,6 +43,8 @@ export const AuthProvider = ({ children }) => {
         setIsDbReady(true);
       } catch (error) {
         console.error("Auth DB Init Error:", error);
+        setDbError(error.toString() + " | Path: " + storagePath);
+        setIsDbReady(true);
       }
     };
     initDb();
@@ -70,6 +69,27 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
   };
+
+  if (dbError) {
+    return (
+      <div className="flex flex-col h-screen items-center justify-center bg-red-50 p-6 text-center">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">خطأ في الاتصال بقاعدة البيانات!</h1>
+        <p className="text-gray-700 mb-4">تعذر الاتصال بالملف المشترك. يرجى التأكد من أن الحاسوب الرئيسي قيد التشغيل، وأن مسار الشبكة صحيح، وأن لديك صلاحية الدخول (القراءة والكتابة).</p>
+        <div className="bg-white p-4 rounded border border-red-200 text-left text-sm text-red-800 break-all w-full max-w-2xl mb-6">
+          {dbError}
+        </div>
+        <button 
+          onClick={() => {
+            localStorage.removeItem('chifa_storage_path');
+            window.location.href = '/setup';
+          }}
+          className="bg-red-600 text-white px-6 py-2 rounded font-bold"
+        >
+          إعادة اختيار المجلد
+        </button>
+      </div>
+    );
+  }
 
   if (!isDbReady) {
     return (

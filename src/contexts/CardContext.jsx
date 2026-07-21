@@ -8,6 +8,8 @@ export const CardProvider = ({ children }) => {
   const [db, setDb] = useState(null);
   const [isDbReady, setIsDbReady] = useState(false);
 
+  const [dbError, setDbError] = useState(null);
+
   // Initialize Database
   useEffect(() => {
     let intervalId;
@@ -54,25 +56,21 @@ export const CardProvider = ({ children }) => {
         
         loadCards(database);
 
-        // --- Real-time Polling for LAN Sync ---
-        // Fetch new data from the database every 3 seconds
-        // This ensures PC 2 sees changes made by PC 1 immediately.
         intervalId = setInterval(() => {
           loadCards(currentDb);
         }, 3000);
 
       } catch (error) {
         console.error("Failed to initialize database:", error);
+        setDbError(error.toString());
+        setIsDbReady(true);
       }
     };
 
     initDb();
 
-    // Cleanup interval on unmount
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      if (intervalId) clearInterval(intervalId);
     };
   }, []);
 
@@ -178,6 +176,17 @@ export const CardProvider = ({ children }) => {
       throw error;
     }
   };
+
+  if (dbError) {
+    return (
+      <div className="flex flex-col h-screen items-center justify-center bg-red-50 p-6 text-center">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">خطأ في الاتصال (Card DB)</h1>
+        <div className="bg-white p-4 rounded border border-red-200 text-left text-sm text-red-800 break-all w-full max-w-2xl mb-6">
+          {dbError}
+        </div>
+      </div>
+    );
+  }
 
   if (!isDbReady) {
     return (
