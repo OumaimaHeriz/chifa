@@ -13,8 +13,8 @@ import Setup from './pages/Setup';
 
 // Root redirect logic
 const RootRedirect = () => {
-  const storagePath = localStorage.getItem('chifa_storage_path');
-  if (!storagePath) return <Navigate to="/setup" replace />;
+  const role = localStorage.getItem('chifa_role');
+  if (!role) return <Navigate to="/setup" replace />;
 
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;

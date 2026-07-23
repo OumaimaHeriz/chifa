@@ -14,6 +14,12 @@ export default function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  React.useEffect(() => {
+    if (!localStorage.getItem('chifa_role')) {
+      navigate('/setup');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
