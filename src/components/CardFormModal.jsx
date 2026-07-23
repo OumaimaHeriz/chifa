@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Camera, Upload, X, Save } from 'lucide-react';
 import { open } from '@tauri-apps/plugin-dialog';
-import { writeFile, BaseDirectory, mkdir } from '@tauri-apps/plugin-fs';
+import { readFile } from '@tauri-apps/plugin-fs';
 
 export default function CardFormModal({ isOpen, onClose, onSave, initialData = null }) {
   const { t } = useTranslation();
@@ -18,6 +18,8 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
   const [formData, setFormData] = useState(initialData || defaultState);
   const [imagePreview, setImagePreview] = useState(initialData?.ordonnance_image_path || null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -30,24 +32,27 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
     }));
   };
 
-  const saveImageLocally = async (uint8Array, extension = 'png') => {
+  const uploadImageToApi = async (blob, extension = 'png') => {
     try {
-      const storagePath = localStorage.getItem('chifa_storage_path');
-      if (!storagePath) {
-        console.error("Storage path not configured.");
-        return null;
-      }
-      const ordonnancesDir = `${storagePath}/ordonnances`;
-      await mkdir(ordonnancesDir, { recursive: true });
+      setIsUploading(true);
+      const apiUrl = localStorage.getItem('chifa_api_url');
+      if (!apiUrl) throw new Error("API URL missing");
       
-      const fileName = `ordonnances/ord_${Date.now()}.${extension}`;
-      const absolutePath = `${storagePath}/${fileName}`;
-      await writeFile(absolutePath, uint8Array);
-      
-      // We save the RELATIVE path in the DB so other computers on the LAN can resolve it using their own storagePath
-      return fileName;
+      const formData = new FormData();
+      formData.append('file', blob, `upload_${Date.now()}.${extension}`);
+
+      const res = await fetch(`${apiUrl}/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+      const data = await res.json();
+      setIsUploading(false);
+      return data.filename;
     } catch (err) {
-      console.error("Error saving image:", err);
+      console.error("Error uploading image:", err);
+      setIsUploading(false);
       return null;
     }
   };
@@ -60,11 +65,17 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
       });
       
       if (selected) {
-        // In a real app, we would read the file from the OS using standard APIs 
-        // For simplicity in React, we'll store the absolute path temporarily
-        // Tauri v2 convertFileSrc can be used later to display it
-        setFormData(prev => ({ ...prev, ordonnance_image_path: selected }));
-        setImagePreview(selected);
+        // Read file contents from local disk using Tauri
+        const fileContents = await readFile(selected);
+        const blob = new Blob([fileContents]);
+        
+        const uploadedFilename = await uploadImageToApi(blob, 'jpg');
+        if (uploadedFilename) {
+          setFormData(prev => ({ ...prev, ordonnance_image_path: uploadedFilename }));
+          setImagePreview(uploadedFilename);
+        } else {
+          alert("Erreur lors de l'envoi de l'image au serveur.");
+        }
       }
     } catch (err) {
       console.error("File selection error:", err);
@@ -106,14 +117,14 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
       // Convert to blob
       canvas.toBlob(async (blob) => {
         if (blob) {
-          const arrayBuffer = await blob.arrayBuffer();
-          const uint8Array = new Uint8Array(arrayBuffer);
-          const savedPath = await saveImageLocally(uint8Array, 'png');
+          stopCamera();
+          const uploadedFilename = await uploadImageToApi(blob, 'png');
           
-          if (savedPath) {
-            setFormData(prev => ({ ...prev, ordonnance_image_path: savedPath }));
-            setImagePreview(URL.createObjectURL(blob));
-            stopCamera();
+          if (uploadedFilename) {
+            setFormData(prev => ({ ...prev, ordonnance_image_path: uploadedFilename }));
+            setImagePreview(uploadedFilename);
+          } else {
+            alert("Erreur lors de l'envoi de l'image au serveur.");
           }
         }
       }, 'image/png');
@@ -229,19 +240,28 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
                     <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
                   </div>
                 ) : imagePreview ? (
-                  <div style={{ width: '100%', position: 'relative' }}>
-                    {/* Note: In a real Tauri app, we need to convert the file path using convertFileSrc to display it if it's an absolute path */}
-                    <p className="text-sm text-center mb-2 font-medium text-green-600">Image jointe au dossier</p>
-                    <button type="button" onClick={() => setImagePreview(null)} className="btn text-sm" style={{ position: 'absolute', top: 0, right: 0, padding: '0.25rem 0.5rem' }}>Changer</button>
+                  <div style={{ width: '100%', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <p className="text-sm text-center mb-2 font-medium text-green-600">
+                      {isUploading ? "Envoi en cours..." : "Image jointe au dossier (sur le serveur)"}
+                    </p>
+                    {/* We can fetch it to display, but for now we just show a success message since previewing a remote image needs the full URL */}
+                    {imagePreview && (
+                      <img 
+                        src={`${localStorage.getItem('chifa_api_url')}/images/${imagePreview}`} 
+                        alt="Ordonnance" 
+                        style={{ maxHeight: '150px', borderRadius: '0.25rem', border: '1px solid #ccc', marginBottom: '0.5rem' }}
+                      />
+                    )}
+                    <button type="button" onClick={() => setImagePreview(null)} className="btn text-sm" style={{ padding: '0.25rem 0.5rem' }}>Changer</button>
                   </div>
                 ) : (
                   <>
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', textAlign: 'center' }}>Aucune ordonnance jointe.</p>
                     <div className="flex gap-2">
-                      <button type="button" onClick={handleFileUpload} className="btn flex items-center gap-2" style={{ backgroundColor: 'white', border: '1px solid var(--color-border)' }}>
+                      <button type="button" onClick={handleFileUpload} disabled={isUploading} className="btn flex items-center gap-2" style={{ backgroundColor: 'white', border: '1px solid var(--color-border)', opacity: isUploading ? 0.5 : 1 }}>
                         <Upload size={16} /> Parcourir
                       </button>
-                      <button type="button" onClick={startCamera} className="btn flex items-center gap-2" style={{ backgroundColor: 'white', border: '1px solid var(--color-border)' }}>
+                      <button type="button" onClick={startCamera} disabled={isUploading} className="btn flex items-center gap-2" style={{ backgroundColor: 'white', border: '1px solid var(--color-border)', opacity: isUploading ? 0.5 : 1 }}>
                         <Camera size={16} /> Caméra
                       </button>
                     </div>
@@ -287,8 +307,8 @@ export default function CardFormModal({ isOpen, onClose, onSave, initialData = n
         {/* Footer */}
         <div className="flex justify-end gap-3" style={{ padding: '1.5rem', borderTop: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
           <button type="button" className="btn" onClick={() => { stopCamera(); onClose(); }} style={{ border: '1px solid var(--color-border)' }}>Annuler</button>
-          <button type="submit" form="cardForm" className="btn btn-primary flex items-center gap-2">
-            <Save size={18} /> Enregistrer le dossier
+          <button type="submit" form="cardForm" disabled={isUploading} className="btn btn-primary flex items-center gap-2">
+            <Save size={18} /> {isUploading ? 'Envoi...' : 'Enregistrer le dossier'}
           </button>
         </div>
 

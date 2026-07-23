@@ -26,15 +26,11 @@ export default function ReceptionDashboard() {
   const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('blob:') || path.startsWith('http')) {
-      return convertFileSrc(path);
+      return path; // For blob preview
     }
-    const storagePath = localStorage.getItem('chifa_storage_path');
-    if (storagePath) {
-      // Create the absolute path using the user's storage path
-      const separator = storagePath.includes('\\') ? '\\' : '/';
-      const cleanPath = path.replace(/^[/\\]+/, ''); // remove leading slash if any
-      const absolutePath = `${storagePath}${separator}${cleanPath}`;
-      return convertFileSrc(absolutePath);
+    const apiUrl = localStorage.getItem('chifa_api_url');
+    if (apiUrl) {
+      return `${apiUrl}/images/${path}`;
     }
     return null;
   };
